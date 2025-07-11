@@ -3,7 +3,7 @@ import Produto from "../models/Produto.js";
 
 const router = express.Router();
 
-// GET /produto → listar todos
+// GET /produto - listar todos os produtos
 router.get("/", async (req, res) => {
   try {
     const produtos = await Produto.find();
@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET /produto/:id → buscar um
+// GET /produto/:id - buscar um produto
 router.get("/:id", async (req, res) => {
   try {
     const produto = await Produto.findById(req.params.id);
@@ -24,7 +24,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// POST /produto → criar novo
+// POST /produto - criar novo
 router.post("/", async (req, res) => {
   try {
     const novoProduto = new Produto(req.body);
@@ -35,7 +35,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// PUT /produto/:id → editar
+// PUT /produto/:id - editar
 router.put("/:id", async (req, res) => {
   try {
     const atualizado = await Produto.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -46,7 +46,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// DELETE /produto/:id → excluir
+// DELETE /produto/:id - excluir
 router.delete("/:id", async (req, res) => {
   try {
     const removido = await Produto.findByIdAndDelete(req.params.id);
