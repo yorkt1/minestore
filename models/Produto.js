@@ -1,43 +1,60 @@
-import mongoose from "mongoose";
+import express from "express";
+import Produto from "../models/Produto.js";
 
-const ProdutoSchema = new mongoose.Schema(
-  {
-    nome: {
-      type: String,
-      required: true,
-    },
-    categoria: {
-      type: String,
-      required: true,
-      enum: ["Jogos", "Skins", "Texturas", "Merchandising"],
-    },
-    preco: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    estoque: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    descricao: {
-      type: String,
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ["active", "inactive", "draft"],
-      default: "active",
-    },
-    imagem: {
-      type: String,
-      default: "../images/placeholder-image.jpg", // ou você pode usar uma URL pública
-    },
-  },
-  {
-    timestamps: true,
+const router = express.Router();
+
+// GET /produto → listar todos
+router.get("/", async (req, res) => {
+  try {
+    const produtos = await Produto.find();
+    res.json(produtos);
+  } catch (err) {
+    res.status(500).json({ erro: "Erro ao buscar produtos" });
   }
-);
+});
 
-export default mongoose.model("Produto", ProdutoSchema);
+// GET /produto/:id → buscar um
+router.get("/:id", async (req, res) => {
+  try {
+    const produto = await Produto.findById(req.params.id);
+    if (!produto) return res.status(404).json({ erro: "Produto não encontrado" });
+    res.json(produto);
+  } catch (err) {
+    res.status(500).json({ erro: "Erro ao buscar produto" });
+  }
+});
+
+// POST /produto → criar novo
+router.post("/", async (req, res) => {
+  try {
+    const novoProduto = new Produto(req.body);
+    const salvo = await novoProduto.save();
+    res.status(201).json(salvo);
+  } catch (err) {
+    res.status(400).json({ erro: "Erro ao criar produto" });
+  }
+});
+
+// PUT /produto/:id → editar
+router.put("/:id", async (req, res) => {
+  try {
+    const atualizado = await Produto.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!atualizado) return res.status(404).json({ erro: "Produto não encontrado" });
+    res.json(atualizado);
+  } catch (err) {
+    res.status(400).json({ erro: "Erro ao atualizar produto" });
+  }
+});
+
+// DELETE /produto/:id → excluir
+router.delete("/:id", async (req, res) => {
+  try {
+    const removido = await Produto.findByIdAndDelete(req.params.id);
+    if (!removido) return res.status(404).json({ erro: "Produto não encontrado" });
+    res.json({ mensagem: "Produto excluído com sucesso" });
+  } catch (err) {
+    res.status(500).json({ erro: "Erro ao excluir produto" });
+  }
+});
+
+export default router;
