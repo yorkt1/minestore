@@ -1,7 +1,26 @@
 import express from "express";
 import Produto from "../models/Produto.js";
+import { getNextSequence } from "../utils/counte.js";
 
 const router = express.Router();
+
+// POST /produto - criar novo com ID sequencial
+router.post("/", async (req, res) => {
+  try {
+    const nextId = await getNextSequence("produtoid");
+
+    const novoProduto = new Produto({
+      ...req.body,
+      id: nextId, // ID sequencial tipo 1, 2, 3...
+    });
+
+    const salvo = await novoProduto.save();
+    res.status(201).json(salvo);
+  } catch (err) {
+    console.error("Erro ao criar produto:", err);
+    res.status(400).json({ erro: "Erro ao criar produto" });
+  }
+});
 
 // GET /produto - listar todos os produtos
 router.get("/", async (req, res) => {
@@ -16,7 +35,7 @@ router.get("/", async (req, res) => {
 // GET /produto/:id - buscar um produto
 router.get("/:id", async (req, res) => {
   try {
-    const produto = await Produto.findById(req.params.id);
+    const produto = await Produto.findOne({ id: req.params.id });
     if (!produto) return res.status(404).json({ erro: "Produto não encontrado" });
     res.json(produto);
   } catch (err) {
@@ -24,21 +43,14 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// POST /produto - criar novo
-router.post("/", async (req, res) => {
-  try {
-    const novoProduto = new Produto(req.body);
-    const salvo = await novoProduto.save();
-    res.status(201).json(salvo);
-  } catch (err) {
-    res.status(400).json({ erro: "Erro ao criar produto" });
-  }
-});
-
-// PUT /produto/:id - editar
+// PUT /produto/:id - editar por ID sequencial
 router.put("/:id", async (req, res) => {
   try {
-    const atualizado = await Produto.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const atualizado = await Produto.findOneAndUpdate(
+      { id: req.params.id },
+      req.body,
+      { new: true }
+    );
     if (!atualizado) return res.status(404).json({ erro: "Produto não encontrado" });
     res.json(atualizado);
   } catch (err) {
@@ -46,10 +58,10 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// DELETE /produto/:id - excluir
+// DELETE /produto/:id - excluir por ID sequencial
 router.delete("/:id", async (req, res) => {
   try {
-    const removido = await Produto.findByIdAndDelete(req.params.id);
+    const removido = await Produto.findOneAndDelete({ id: req.params.id });
     if (!removido) return res.status(404).json({ erro: "Produto não encontrado" });
     res.json({ mensagem: "Produto excluído com sucesso" });
   } catch (err) {

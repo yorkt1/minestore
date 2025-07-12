@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const ProdutoSchema = new mongoose.Schema(
   {
+    id: {
+      type: Number,
+      required: true,
+      unique: true, // garante que não repita o mesmo número
+    },
     nome: {
       type: String,
       required: true,
