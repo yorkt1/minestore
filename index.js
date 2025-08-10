@@ -2,7 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import produtoRoutes from "./routes/produto.js";
-
+import authRoutes from "./routes/registro.js";
+import usuarioRoutes from "./routes/usuarios.js";
 dotenv.config();
 const app = express();
 
@@ -19,7 +20,8 @@ app.use((req, res, next) => {
 
 // Rotas
 app.use("/produto", produtoRoutes);
-
+app.use("/auth", authRoutes); 
+app.use("/usuarios", usuarioRoutes);
 // Conexão com MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
